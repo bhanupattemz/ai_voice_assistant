@@ -1,0 +1,20 @@
+[project]
+name = "ai-voice-assistant"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "google-auth>=2.40.3",
+    "langchain>=0.3.27",
+    "langchain-community>=0.3.27",
+    "langchain-google-community[calendar]>=2.0.7",
+    "langchain-google-genai>=2.1.9",
+    "langgraph>=0.6.5",
+    "nest-asyncio>=1.6.0",
+    "playwright>=1.54.0",
+    "pyowm>=3.3.0",
+    "tzdata>=2025.2",
+    "wikipedia>=1.4.0",
+]
