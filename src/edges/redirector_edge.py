@@ -1,3 +1,4 @@
+import asyncio
 from langchain_core.messages import SystemMessage, HumanMessage
 from .base_edge import BaseEdge
 
@@ -6,37 +7,102 @@ class RedirectorEdge(BaseEdge):
     def __init__(self):
         super().__init__()
 
-    def execute(self, state):
-        """Node that decides whether to use a calendar tool."""
+    async def execute(self, state):
+        """Edge that decides the next node with improved routing logic."""
         system_msg = self.get_system_message()
         user_query = self._extract_latest_user_query(state["messages"])
-
         human_msg = self._format_human_message(state["messages"], user_query)
 
         messages = [SystemMessage(content=system_msg), HumanMessage(content=human_msg)]
-        response = self.llm_service.invoke(messages, use_pro=True)
-        result = response.content.strip().lower()
-        nodes = ["chatbot", "network_search", "calendar_node", "browser_node"]
-        print(result)
-        if result in nodes:
-            return result
-        return "chatbot"
+        
+        try:
+            response = await self.llm_service.ainvoke(messages, use_pro=True)
+            result = response.content.strip().lower()
+            
+            # Valid routing options
+            valid_nodes = {
+                "chatbot",
+                "network_search", 
+                "calendar_node",
+                "browser_node",
+                "system_node", 
+                "software_node",
+                "end"
+            }
+            
+            print(f"Router decision: {result}")
+            
+            # Validate and return result
+            if result in valid_nodes:
+                return result
+            else:
+                print(f"Invalid router result '{result}', defaulting to chatbot")
+                return "chatbot"
+                
+        except Exception as e:
+            print(f"Router error: {e}, defaulting to chatbot")
+            return "chatbot"
 
     def get_system_message(self) -> str:
-        return """
-        You are a flow redirector that analyzes user requests and determines the next action.
-        
-        Respond with ONLY ONE of these exact words:
-        - network_search (if the user needs internet search, weather, news, wikipedia search, 
-        useful when user want some detailed information/small information related to anything)
-        - END (if the request is complete or no further action is needed)
-        - chatbot (if the request is general question where it can normally done by llm without above nodes)
-        - calendar_node (if user want to perform operations related to Calendar, like create events meeting, and all related to events in calendar)
-        - browser_node (if user want to perform operations related to Browser)
-        Return only the single word, nothing else.
-        """
+        return """You are an intelligent request router that analyzes user messages and determines the appropriate system component to handle them.
+
+ROLE: Request Classification Specialist
+GOAL: Route requests to the most appropriate processing node
+
+AVAILABLE ROUTES:
+1. network_search - Internet searches, current information, news, weather, Wikipedia
+2. calendar_node - Calendar operations, events, meetings, scheduling
+3. browser_node - Web browser control and navigation
+4. system_node - System controls (brightness, volume, performance monitoring)
+5. software_node - Application management (launch, check, security scans)
+6. chatbot - General conversation, questions answerable without tools
+7. end - Task completion, no further action needed
+
+ROUTING DECISION MATRIX:
+
+→ network_search
+TRIGGERS: search, google, find information, news, weather, wikipedia, current events, recent updates
+EXAMPLES: "search for AI news", "what's the weather", "find recent studies"
+
+→ calendar_node  
+TRIGGERS: calendar, schedule, meeting, event, appointment, book, plan, remind
+EXAMPLES: "check my calendar", "schedule meeting", "what events tomorrow"
+
+→ browser_node
+TRIGGERS: browser, website, navigate, open site, web page, url, bookmark
+EXAMPLES: "open google.com", "navigate to website", "close browser"
+
+→ system_node
+TRIGGERS: brightness, volume, sound, airplane mode, wifi, bluetooth, CPU, RAM, GPU, performance, system info
+EXAMPLES: "increase brightness", "check CPU usage", "mute volume"
+
+→ software_node
+TRIGGERS: open app, launch, start program, run software, install, virus scan, malware check
+EXAMPLES: "open chrome", "launch calculator", "scan for viruses"
+
+→ chatbot
+TRIGGERS: general questions, explanations, help, advice, casual conversation
+EXAMPLES: "how does photosynthesis work", "tell me a joke", "explain quantum physics"
+
+→ end
+TRIGGERS: thank you, goodbye, that's all, done, finished, no more
+EXAMPLES: "thanks, that's all", "goodbye", "I'm done"
+
+OUTPUT REQUIREMENT:
+Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, chatbot, end
+
+CRITICAL RULES:
+- Analyze the PRIMARY intent of the user's request
+- Choose the most specific applicable route
+- When in doubt between routes, prefer the more specific tool-based option
+- Only use "chatbot" for general knowledge questions that don't require system interaction
+- Only use "end" when user explicitly indicates completion
+
+Return only the single routing word, nothing else."""
 
     def _extract_latest_user_query(self, messages):
+        from langchain_core.messages import HumanMessage
+
         for i in range(len(messages) - 1, -1, -1):
             latest_message = messages[i]
             if isinstance(latest_message, HumanMessage):
@@ -44,15 +110,39 @@ class RedirectorEdge(BaseEdge):
         return ""
 
     def _format_human_message(self, messages, user_query):
-        return f"""
-        You are an agent that analyzes user requests and determines the next action.
-        
-        The complete conversation history between the assistant and user is:
-        {self.formatter(messages)}
-        The user's latest message is: {user_query}
-        Instructions:
-        - If the user's request has already been completed and they are not asking to rerun the task, respond with "chatbot"
-        - Otherwise, analyze the user's request and determine the appropriate next action:
-        - compare the last message from user with previous messages. it may need to use same node that the time. 
-        Respond with only one word
-        """
+        return f"""ROUTING ANALYSIS REQUIRED
+
+CURRENT USER REQUEST: "{user_query}"
+
+CONVERSATION CONTEXT:
+{self.formatter(messages)}
+
+ROUTING INSTRUCTIONS:
+1. Identify the PRIMARY action the user wants to perform
+2. Match request to the most appropriate system component
+3. Consider conversation context for continuation patterns
+4. Check if this is a follow-up to a previous action
+
+CONTEXT ANALYSIS:
+- Is this a new request or follow-up to previous interaction?
+- Does the user need external information or system control?
+- Is this a general conversation or specific task?
+- Has the current task been completed?
+
+REQUEST CLASSIFICATION:
+Analyze user intent and classify into ONE category:
+- Information seeking → network_search
+- Calendar operations → calendar_node  
+- Browser control → browser_node
+- System control → system_node
+- Software management → software_node
+- General conversation → chatbot
+- Task completion → end
+
+DECISION FACTORS:
+- Keywords and action verbs in the request
+- Type of information or action needed
+- Context from previous interactions
+- Specificity of the request
+
+Output the single most appropriate routing decision."""

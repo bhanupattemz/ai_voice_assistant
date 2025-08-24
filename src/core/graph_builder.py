@@ -8,6 +8,8 @@ from src.nodes.chatbot_node import ChatbotNode
 from src.nodes.calendar_node import CalendarNode
 from src.nodes.search_node import SearchNode
 from src.nodes.browser_node import BrowserNode
+from src.nodes.system_node import SystemNode
+from src.nodes.softwares_node import SoftwareNode
 
 # Edge Imports
 from src.edges.redirector_edge import RedirectorEdge
@@ -16,23 +18,39 @@ from src.edges.redirector_edge import RedirectorEdge
 from src.tools.calendar_tools import calendar_tools
 from src.tools.search_tools import search_tools
 from src.tools.browser_tools import browser_tools
-
+from src.tools.system_tools import system_tools
+from src.tools.softwares_tool import software_tools
 
 class GraphBuilder:
     def __init__(self):
         self.memory = InMemorySaver()
 
-    def build(self):
+
+    async def build(self):
+        """Build the async graph."""
+
         graph_builder = StateGraph(AssistantState)
+
         graph_builder.add_node("chatbot", ChatbotNode().execute)
         graph_builder.add_node("network_search", SearchNode().execute)
         graph_builder.add_node("network_search_tools", ToolNode(tools=search_tools))
         graph_builder.add_node("calendar_node", CalendarNode().execute)
         graph_builder.add_node("calendar_node_tools", ToolNode(tools=calendar_tools))
         graph_builder.add_node("browser_node", BrowserNode().execute)
-        graph_builder.add_node("browser_node_tools", ToolNode(tools=browser_tools))
+        graph_builder.add_node(
+            "browser_node_tools", ToolNode(tools=browser_tools)
+        )
+        graph_builder.add_node("system_node", SystemNode().execute)
+        graph_builder.add_node(
+            "system_node_tools", ToolNode(tools=system_tools)
+        )
+        graph_builder.add_node("software_node", SoftwareNode().execute)
+        graph_builder.add_node(
+            "software_node_tools", ToolNode(tools=software_tools)
+        )
 
         graph_builder.add_conditional_edges(START, RedirectorEdge().execute)
+
         graph_builder.add_conditional_edges(
             "network_search",
             tools_condition,
@@ -54,6 +72,7 @@ class GraphBuilder:
             tools_condition,
             {"tools": "calendar_node_tools", "__end__": "chatbot"},
         )
+
         graph_builder.add_conditional_edges(
             "browser_node",
             tools_condition,
@@ -64,5 +83,26 @@ class GraphBuilder:
             tools_condition,
             {"tools": "browser_node_tools", "__end__": "chatbot"},
         )
+        graph_builder.add_conditional_edges(
+            "system_node",
+            tools_condition,
+            {"tools": "system_node_tools", "__end__": "chatbot"},
+        )
+        graph_builder.add_conditional_edges(
+            "system_node_tools",
+            tools_condition,
+            {"tools": "system_node_tools", "__end__": "chatbot"},
+        )
+        graph_builder.add_conditional_edges(
+            "software_node",
+            tools_condition,
+            {"tools": "software_node_tools", "__end__": "chatbot"},
+        )
+        graph_builder.add_conditional_edges(
+            "software_node_tools",
+            tools_condition,
+            {"tools": "software_node_tools", "__end__": "chatbot"},
+        )
+
         graph_builder.add_edge("chatbot", END)
         return graph_builder.compile(checkpointer=self.memory)

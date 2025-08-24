@@ -1,5 +1,9 @@
+import asyncio
 from langchain_google_genai import ChatGoogleGenerativeAI
 from src.config.settings import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 class LLMService:
     def __init__(self):
@@ -14,10 +18,17 @@ class LLMService:
             google_api_key=settings.llm_key,
         )
     
-    def invoke(self, messages, use_pro=False):
+    async def ainvoke(self, messages, use_pro=False):
+        """Async invoke LLM."""
         llm = self.llm_pro if use_pro else self.llm
-        return llm.invoke(messages)
+        try:
+            response = await asyncio.to_thread(llm.invoke, messages)
+            return response
+        except Exception as e:
+            logger.error(f"LLM invocation error: {e}")
+            raise
     
-    def bind_tools(self, tools, use_pro=False):
+    async def abind_tools(self, tools, use_pro=False):
+        """Async bind tools to LLM."""
         llm = self.llm_pro if use_pro else self.llm
         return llm.bind_tools(tools=tools)

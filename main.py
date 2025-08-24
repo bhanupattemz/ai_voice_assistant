@@ -1,3 +1,5 @@
+
+import asyncio
 from src.core.assistant import VoiceAssistant
 from src.config.settings import settings
 import logging
@@ -7,7 +9,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
-def main():
+async def main():
     """Main entry point for the voice assistant."""
     assistant = VoiceAssistant()
     
@@ -16,7 +18,8 @@ def main():
     
     while True:
         try:
-            user_input = input("\nYou: ").strip()
+            user_input = await asyncio.to_thread(input, "\nYou: ")
+            user_input = user_input.strip()
             
             if user_input.lower() in ["exit", "quit", "bye"]:
                 print("Goodbye!")
@@ -25,7 +28,7 @@ def main():
             if not user_input:
                 continue
             
-            response = assistant.chat(user_input)
+            response = await assistant.chat(user_input)
             print(f"\n{settings.assistant_name}: {response}")
             
         except KeyboardInterrupt:
@@ -36,4 +39,4 @@ def main():
             print("Sorry, I encountered an error. Please try again.")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

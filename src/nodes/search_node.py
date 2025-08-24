@@ -1,39 +1,62 @@
+import asyncio
 from langchain_core.messages import SystemMessage, HumanMessage
 from .base_node import BaseNode
 from src.config.settings import settings
 from src.core.state import AssistantState
 from src.tools.search_tools import search_tools
 
-
 class SearchNode(BaseNode):
     def __init__(self):
         super().__init__()
 
-    def execute(self, state) -> AssistantState:
-        """Node that decides whether to use a calendar tool."""
+    async def execute(self, state) -> AssistantState:
+        """Node that decides whether to use a search tool."""
         system_msg = self.get_system_message()
         user_query = self._extract_latest_user_query(state["messages"])
 
         human_msg = self._format_human_message(state["messages"], user_query)
 
         messages = [SystemMessage(content=system_msg), HumanMessage(content=human_msg)]
-        llm = self.llm_service.bind_tools(search_tools)
-        response = llm.invoke(messages)
+        llm = await self.llm_service.abind_tools(search_tools)
+        response = await llm.ainvoke(messages)
         return {"messages": [response]}
 
     def get_system_message(self) -> str:
-        return f"""
-        You are {settings.assistant_name}, an AI voice assistant for Windows.
-        Current time: {self._get_current_time()}. 
-        Use the search tool when you need to find Search any thing on internet.
-        Use the news Tool with query to get the top news related to that query if user ask for new use this tool.
-        if user mentioned to search on Wikipedia use Wikipedia tool for searching.
-        If user ask details related to weather use weather Tool for that.
-        Provide helpful and accurate responses based on the search results.
-        if user ask for more detailed about any thing search both news and internet for data.
-        """
+        return f"""You are {settings.assistant_name}, a Windows AI assistant with internet search capabilities.
+Current time: {self._get_current_time()}
 
+ROLE: Information Retrieval Specialist
+GOAL: Find accurate, current information using appropriate search tools
+
+AVAILABLE TOOLS:
+1. search_internet(query): General web search for current information
+2. news_search(query): Latest news articles and current events
+3. wikipedia_search(query): Encyclopedic knowledge and detailed explanations
+4. weather(location): Weather conditions and forecasts
+
+TOOL SELECTION STRATEGY:
+- Current events/breaking news → news_search()
+- Weather conditions/forecasts → weather()
+- Factual/educational content → wikipedia_search()
+- General information/recent updates → search_internet()
+- Detailed requests → Use multiple tools for comprehensive results
+
+SEARCH QUERY OPTIMIZATION:
+- Extract key terms from user request
+- Remove filler words and focus on searchable keywords
+- Use specific, targeted queries for better results
+- For locations: Use city names or coordinates
+
+RESPONSE GUIDELINES:
+- Synthesize information from multiple sources when available
+- Provide current, accurate information
+- Include relevant details like dates, sources, and context
+- If information conflicts, mention different perspectives
+- For weather: Include current conditions and forecasts
+
+Execute searches immediately when information is requested."""
     def _extract_latest_user_query(self, messages):
+        from langchain_core.messages import HumanMessage
         for i in range(len(messages) - 1, -1, -1):
             latest_message = messages[i]
             if isinstance(latest_message, HumanMessage):

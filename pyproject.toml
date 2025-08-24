@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "dotenv>=0.9.9",
     "google-auth>=2.40.3",
+    "gputil>=1.4.0",
     "langchain>=0.3.27",
     "langchain-community>=0.3.27",
     "langchain-google-community[calendar]>=2.0.7",
@@ -14,7 +15,12 @@ dependencies = [
     "langgraph>=0.6.5",
     "nest-asyncio>=1.6.0",
     "playwright>=1.54.0",
+    "psutil>=7.0.0",
+    "pyautogui>=0.9.54",
+    "pycaw>=20240210",
     "pyowm>=3.3.0",
+    "screen-brightness-control>=0.24.2",
+    "setuptools>=80.9.0",
     "tzdata>=2025.2",
     "wikipedia>=1.4.0",
 ]
