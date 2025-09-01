@@ -9,6 +9,10 @@ class RedirectorEdge(BaseEdge):
 
     async def execute(self, state):
         """Edge that decides the next node with improved routing logic."""
+        if state.get("mode","normal")=="keyboard":
+            print("selected: keyboard_node")
+            return "keyboard_node"
+        
         system_msg = self.get_system_message()
         user_query = self._extract_latest_user_query(state["messages"])
         human_msg = self._format_human_message(state["messages"], user_query)
@@ -27,6 +31,7 @@ class RedirectorEdge(BaseEdge):
                 "browser_node",
                 "system_node", 
                 "software_node",
+                "keyboard_node"
             }
             
             print(f"Router decision: {result}")
@@ -54,7 +59,9 @@ AVAILABLE ROUTES:
 3. browser_node - Web browser control and navigation
 4. system_node - System controls (brightness, volume, performance monitoring)
 5. software_node - Application management (launch, check, security scans)
-6. chatbot - General conversation, questions answerable without tools
+6. keyboard_node - when user want to turn on keyboard mode
+7. chatbot - General conversation, questions answerable without tools
+
 
 
 ROUTING DECISION MATRIX:
@@ -79,12 +86,16 @@ EXAMPLES: "increase brightness", "check CPU usage", "mute volume"
 TRIGGERS: open app, launch, start program, run software, install, virus scan, malware check
 EXAMPLES: "open chrome", "launch calculator", "scan for viruses"
 
+→ keyboard_node
+TRIGGERS: when user want to set keyboard mode
+EXAMPLES: "set keyboard mode", "keyboard", "keyboard mode"
+
 → chatbot
 TRIGGERS: general questions, explanations, help, advice, casual conversation
 EXAMPLES: "how does photosynthesis work", "tell me a joke", "explain quantum physics"
 
 OUTPUT REQUIREMENT:
-Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, chatbot
+Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, keyboard_node, chatbot
 
 CRITICAL RULES:
 - Analyze the PRIMARY intent of the user's request

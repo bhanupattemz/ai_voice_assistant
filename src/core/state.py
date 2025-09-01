@@ -4,6 +4,7 @@ from langchain_core.messages import BaseMessage
 
 class AssistantState(TypedDict):
     messages: Annotated[List[BaseMessage], add_messages]
+    mode:str
     context: dict
     user_preferences: dict
     calendar_events: List[any]

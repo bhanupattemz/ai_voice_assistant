@@ -2,6 +2,7 @@ from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 from src.core.state import AssistantState
+from graphviz import Digraph
 
 # Node Imports
 from src.nodes.chatbot_node import ChatbotNode
@@ -15,9 +16,15 @@ from src.nodes.calendar.calendar_update_node import UpdateCalendarNode
 from src.nodes.calendar.calendar_delete_node import DeleteCalendarNode
 from src.nodes.calendar.calender_final_node import FinalCalendarNode
 
+from src.nodes.keyboard.keyboard_node import KeyboardNode
+from src.nodes.keyboard.keyboard_hotkey import KeyboardHotKeyNode
+from src.nodes.keyboard.keyboard_presskey import KeyboardPressNode
+from src.nodes.keyboard.keyboard_write import KeyboardWriteNode
+
 # Edge Imports
 from src.edges.redirector_edge import RedirectorEdge
 from src.edges.calendar_edge import CalendarRedirectorEdge
+from src.edges.keyboard_edge import KeyboardRedirectorEdge
 
 # Tools Imports
 from src.tools.search_tools import search_tools
@@ -49,6 +56,10 @@ class GraphBuilder:
         graph_builder.add_node("calendar_update", UpdateCalendarNode().execute)
         graph_builder.add_node("calendar_delete", DeleteCalendarNode().execute)
         graph_builder.add_node("calendar_final", FinalCalendarNode().execute)
+        graph_builder.add_node("keyboard_node", KeyboardNode().execute)
+        graph_builder.add_node("keyboard_hotkey", KeyboardHotKeyNode().execute)
+        graph_builder.add_node("keyboard_presskey", KeyboardPressNode().execute)
+        graph_builder.add_node("keyboard_write", KeyboardWriteNode().execute)
 
         graph_builder.add_conditional_edges(START, RedirectorEdge().execute)
 
@@ -96,9 +107,19 @@ class GraphBuilder:
         graph_builder.add_conditional_edges(
             "calendar_node", CalendarRedirectorEdge().execute
         )
+        graph_builder.add_conditional_edges(
+            "keyboard_node", KeyboardRedirectorEdge().execute
+        )
+
         graph_builder.add_edge("calendar_create", "calendar_final")
         graph_builder.add_edge("calendar_update", "calendar_final")
         graph_builder.add_edge("calendar_delete", "calendar_final")
         graph_builder.add_edge("calendar_final", "chatbot")
+
+        graph_builder.add_edge("keyboard_hotkey", "chatbot")
+        graph_builder.add_edge("keyboard_presskey", "chatbot")
+        graph_builder.add_edge("keyboard_write", "chatbot")
         graph_builder.add_edge("chatbot", END)
         return graph_builder.compile(checkpointer=self.memory)
+
+    
