@@ -76,6 +76,7 @@ OUTPUT REQUIREMENTS:
 - Clear and direct communication
 - Short sentences when possible
 - End responses cleanly without forced questions
+- If it have feedback from AI related to conformation - then return that feedback as it is (important)
 ```
 """
 

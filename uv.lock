@@ -28,6 +28,7 @@ dependencies = [
     { name = "pycaw" },
     { name = "pygame" },
     { name = "pyowm" },
+    { name = "pytz" },
     { name = "screen-brightness-control" },
     { name = "setuptools" },
     { name = "speechrecognition" },
@@ -54,6 +55,7 @@ requires-dist = [
     { name = "pycaw", specifier = ">=20240210" },
     { name = "pygame", specifier = ">=2.6.1" },
     { name = "pyowm", specifier = ">=3.3.0" },
+    { name = "pytz", specifier = ">=2025.2" },
     { name = "screen-brightness-control", specifier = ">=0.24.2" },
     { name = "setuptools", specifier = ">=80.9.0" },
     { name = "speechrecognition", specifier = ">=3.14.3" },
@@ -1595,6 +1597,15 @@ name = "pytweening"
 version = "1.2.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/79/0c/c16bc93ac2755bac0066a8ecbd2a2931a1735a6fffd99a2b9681c7e83e90/pytweening-1.2.0.tar.gz", hash = "sha256:243318b7736698066c5f362ec5c2b6434ecf4297c3c8e7caa8abfe6af4cac71b", size = 171241, upload-time = "2024-02-20T03:37:56.809Z" }
+
+[[package]]
+name = "pytz"
+version = "2025.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/bf/abbd3cdfb8fbc7fb3d4d38d320f2441b1e7cbe29be4f23797b4a2b5d8aac/pytz-2025.2.tar.gz", hash = "sha256:360b9e3dbb49a209c21ad61809c7fb453643e048b38924c765813546746e81c3", size = 320884, upload-time = "2025-03-25T02:25:00.538Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/81/c4/34e93fe5f5429d7570ec1fa436f1986fb1f00c3e0f43a589fe2bbcd22c3f/pytz-2025.2-py2.py3-none-any.whl", hash = "sha256:5ddf76296dd8c44c26eb8f4b6f35488f3ccbf6fbbd7adee0b7262d43f0ec2f00", size = 509225, upload-time = "2025-03-25T02:24:58.468Z" },
+]
 
 [[package]]
 name = "pywin32"

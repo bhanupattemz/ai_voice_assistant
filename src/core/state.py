@@ -6,3 +6,5 @@ class AssistantState(TypedDict):
     messages: Annotated[List[BaseMessage], add_messages]
     context: dict
     user_preferences: dict
+    calendar_events: List[any]
+    feedback:str

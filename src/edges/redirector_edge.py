@@ -27,7 +27,6 @@ class RedirectorEdge(BaseEdge):
                 "browser_node",
                 "system_node", 
                 "software_node",
-                "end"
             }
             
             print(f"Router decision: {result}")
@@ -56,7 +55,7 @@ AVAILABLE ROUTES:
 4. system_node - System controls (brightness, volume, performance monitoring)
 5. software_node - Application management (launch, check, security scans)
 6. chatbot - General conversation, questions answerable without tools
-7. end - Task completion, no further action needed
+
 
 ROUTING DECISION MATRIX:
 
@@ -84,19 +83,14 @@ EXAMPLES: "open chrome", "launch calculator", "scan for viruses"
 TRIGGERS: general questions, explanations, help, advice, casual conversation
 EXAMPLES: "how does photosynthesis work", "tell me a joke", "explain quantum physics"
 
-→ end
-TRIGGERS: thank you, goodbye, that's all, done, finished, no more
-EXAMPLES: "thanks, that's all", "goodbye", "I'm done"
-
 OUTPUT REQUIREMENT:
-Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, chatbot, end
+Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, chatbot
 
 CRITICAL RULES:
 - Analyze the PRIMARY intent of the user's request
 - Choose the most specific applicable route
 - When in doubt between routes, prefer the more specific tool-based option
 - Only use "chatbot" for general knowledge questions that don't require system interaction
-- Only use "end" when user explicitly indicates completion
 
 Return only the single routing word, nothing else."""
 
@@ -137,7 +131,6 @@ Analyze user intent and classify into ONE category:
 - System control → system_node
 - Software management → software_node
 - General conversation → chatbot
-- Task completion → end
 
 DECISION FACTORS:
 - Keywords and action verbs in the request
