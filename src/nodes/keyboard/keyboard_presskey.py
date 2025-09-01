@@ -39,13 +39,11 @@ class KeyboardPressNode(BaseNode):
             if response.not_related:
                 return {"messages": [AIMessage(content=response.reasoning)]}
 
-            # Validate the key before executing
             if not self._validate_key(response.key):
                 error_msg = f"Invalid key detected: {response.key}. Only supported keys are allowed."
                 logging.warning(error_msg)
                 return {"messages": [AIMessage(content=error_msg)]}
 
-            # Execute the key press
             result = self.press_key(response.key)
 
             response_content = f"Pressed key: {response.key}"

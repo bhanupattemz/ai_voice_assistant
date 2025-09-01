@@ -40,13 +40,11 @@ class KeyboardWriteNode(BaseNode):
             if response.not_related:
                 return {"messages": [AIMessage(content=response.reasoning)]}
 
-            # Validate text before typing
             if not self._validate_text(response.text):
                 error_msg = "Invalid text detected or text too long. Maximum 500 characters allowed."
                 logging.warning(error_msg)
                 return {"messages": [AIMessage(content=error_msg)]}
 
-            # Execute typing
             result = self.write_text(response.text, response.interval)
 
             response_content = f"Typed text: '{response.text[:50]}{'...' if len(response.text) > 50 else ''}'"

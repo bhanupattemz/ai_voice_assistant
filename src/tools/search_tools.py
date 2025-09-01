@@ -5,7 +5,6 @@ from langchain.agents import Tool
 from langchain_community.utilities import GoogleSerperAPIWrapper
 from langchain_community.tools.wikipedia.tool import WikipediaQueryRun
 from langchain_community.utilities.wikipedia import WikipediaAPIWrapper
-import requests
 from src.config.settings import settings
 from langchain_community.utilities import OpenWeatherMapAPIWrapper
 

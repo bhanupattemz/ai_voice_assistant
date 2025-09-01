@@ -2,7 +2,6 @@ from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 from src.core.state import AssistantState
-from graphviz import Digraph
 
 # Node Imports
 from src.nodes.chatbot_node import ChatbotNode

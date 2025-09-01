@@ -23,7 +23,6 @@ class RedirectorEdge(BaseEdge):
             response = await self.llm_service.ainvoke(messages, use_pro=True)
             result = response.content.strip().lower()
             
-            # Valid routing options
             valid_nodes = {
                 "chatbot",
                 "network_search", 
@@ -36,7 +35,6 @@ class RedirectorEdge(BaseEdge):
             
             print(f"Router decision: {result}")
             
-            # Validate and return result
             if result in valid_nodes:
                 return result
             else:

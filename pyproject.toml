@@ -10,6 +10,7 @@ dependencies = [
     "gputil>=1.4.0",
     "graphviz>=0.21",
     "gtts>=2.5.4",
+    "keyboard>=0.13.5",
     "langchain>=0.3.27",
     "langchain-community>=0.3.27",
     "langchain-google-community[calendar]>=2.0.7",

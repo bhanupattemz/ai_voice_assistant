@@ -34,16 +34,12 @@ class KeyboardHotKeyNode(BaseNode):
             response = await llm.ainvoke(messages)
             if response.not_related:
                 return {"messages": [AIMessage(content=response.reasoning)]}
-            # Validate the keys before executing
             if not self._validate_keys(response.args):
                 error_msg = f"Invalid keys detected: {response.args}. Only supported keys are allowed."
                 logging.warning(error_msg)
                 return {"messages": [AIMessage(content=error_msg)]}
             
-            # Execute the hotkey
             result = self.use_hotkey(response.args)
-            
-            # Create response message
             response_content = f"Executed hotkey: {' + '.join(response.args)}"
             if response.reasoning:
                 response_content += f"\nReasoning: {response.reasoning}"
@@ -59,7 +55,6 @@ class KeyboardHotKeyNode(BaseNode):
         if not keys or len(keys) < 2 or len(keys) > 3:
             return False
         
-        # Convert to lowercase for comparison
         normalized_keys = [key.lower() for key in keys]
         return all(key in self.ALL_KEYS for key in normalized_keys)
     

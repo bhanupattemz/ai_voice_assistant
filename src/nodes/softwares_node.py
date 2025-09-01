@@ -52,8 +52,8 @@ APP NAME PROCESSING:
 - Smart fuzzy matching for variations
 
 RESPONSE FORMAT:
-- Success: "✅ [Action completed]: [Details]"
-- Failure: "❌ [Issue]: [Reason]"
+- Success: "[Action completed]: [Details]"
+- Failure: "[Issue]: [Reason]"
 - Security: Detailed threat analysis with recommendations
 
 Execute tool calls immediately upon request identification."""

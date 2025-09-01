@@ -22,7 +22,10 @@ class KeyboardNode(BaseNode):
         res_data = await llm.ainvoke(messages)
         mode = res_data.next_mode
         if mode == "keyboard":
-            return {"mode": res_data.next_mode}
+            return {
+                "mode": res_data.next_mode,
+                "messages": [AIMessage(content="enter into Keyboard mode success.")],
+            }
         return {
             "mode": res_data.next_mode,
             "messages": [AIMessage(content="Keyboard mode has been exited.")],

@@ -5,7 +5,6 @@ import os
 import platform
 import subprocess
 import json
-import winreg
 from src.services.llm_service import LLMService
 from pydantic import BaseModel, Field
 

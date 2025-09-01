@@ -18,14 +18,11 @@ class KeyboardRedirectorEdge(BaseEdge):
             response = await self.llm_service.ainvoke(messages, use_pro=True)
             result = response.content.strip().lower()
 
-            # Valid targets
             valid_nodes = {"chatbot", "keyboard_hotkey", "keyboard_presskey", "keyboard_write"}
 
-            # Determine the route
             if result in valid_nodes:
                 return result
             else:
-                # Fallback: try to infer from keywords
                 if any(k in user_query.lower() for k in ["press", "hit", "key"]):
                     return "keyboard_presskey"
                 elif any(k in user_query.lower() for k in ["hotkey", "shortcut", "ctrl", "alt", "shift"]):

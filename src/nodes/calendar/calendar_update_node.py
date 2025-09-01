@@ -82,12 +82,9 @@ class UpdateCalendarNode(CalendarBaseNode):
         try:
             service = self.get_calendar_service()
 
-            # Get the existing event
             event = (
                 service.events().get(calendarId="primary", eventId=event_id).execute()
             )
-
-            # Update only the fields that were provided
             if start_dt and end_dt:
                 event["start"]["dateTime"] = start_dt.isoformat()
                 event["start"]["timeZone"] = "Asia/Kolkata"
@@ -97,17 +94,15 @@ class UpdateCalendarNode(CalendarBaseNode):
             if new_name:
                 event["summary"] = new_name
 
-            if new_description is not None:  # Allow empty string to clear description
+            if new_description is not None:  
                 event["description"] = new_description
 
-            # Update the event
             updated_event = (
                 service.events()
                 .update(calendarId="primary", eventId=event_id, body=event)
                 .execute()
             )
 
-            # Format response
             event_name = updated_event.get("summary", "Event")
             start_time = updated_event.get("start", {}).get("dateTime", "")
 
