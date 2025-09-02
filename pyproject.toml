@@ -29,5 +29,7 @@ dependencies = [
     "setuptools>=80.9.0",
     "speechrecognition>=3.14.3",
     "tzdata>=2025.2",
+    "web-browser>=0.0.1",
     "wikipedia>=1.4.0",
+    "youtube-search>=2.1.2",
 ]

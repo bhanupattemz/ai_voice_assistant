@@ -20,6 +20,8 @@ from src.nodes.keyboard.keyboard_hotkey import KeyboardHotKeyNode
 from src.nodes.keyboard.keyboard_presskey import KeyboardPressNode
 from src.nodes.keyboard.keyboard_write import KeyboardWriteNode
 
+from src.nodes.youtube_node import YoutubeNode
+
 # Edge Imports
 from src.edges.redirector_edge import RedirectorEdge
 from src.edges.calendar_edge import CalendarRedirectorEdge
@@ -59,6 +61,7 @@ class GraphBuilder:
         graph_builder.add_node("keyboard_hotkey", KeyboardHotKeyNode().execute)
         graph_builder.add_node("keyboard_presskey", KeyboardPressNode().execute)
         graph_builder.add_node("keyboard_write", KeyboardWriteNode().execute)
+        graph_builder.add_node("youtube_node",YoutubeNode().execute)
 
         graph_builder.add_conditional_edges(START, RedirectorEdge().execute)
 
@@ -118,6 +121,8 @@ class GraphBuilder:
         graph_builder.add_edge("keyboard_hotkey", "chatbot")
         graph_builder.add_edge("keyboard_presskey", "chatbot")
         graph_builder.add_edge("keyboard_write", "chatbot")
+        
+        graph_builder.add_edge("youtube_node", "chatbot")
         graph_builder.add_edge("chatbot", END)
         return graph_builder.compile(checkpointer=self.memory)
 
