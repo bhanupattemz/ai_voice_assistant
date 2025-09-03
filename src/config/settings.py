@@ -22,6 +22,8 @@ class Settings:
         # Google Calendar
         self.token_file="token.json"
         self.credentials_file="credentials.json"
+        
+        self.mode="normal"
 
 
 settings = Settings()

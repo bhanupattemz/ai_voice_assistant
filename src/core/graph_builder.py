@@ -6,7 +6,6 @@ from src.core.state import AssistantState
 # Node Imports
 from src.nodes.chatbot_node import ChatbotNode
 from src.nodes.search_node import SearchNode
-from src.nodes.browser_node import BrowserNode
 from src.nodes.system_node import SystemNode
 from src.nodes.softwares_node import SoftwareNode
 from src.nodes.calendar.calendar_node import CalendarNode
@@ -14,7 +13,6 @@ from src.nodes.calendar.calender_create_node import CreateCalendarNode
 from src.nodes.calendar.calendar_update_node import UpdateCalendarNode
 from src.nodes.calendar.calendar_delete_node import DeleteCalendarNode
 from src.nodes.calendar.calender_final_node import FinalCalendarNode
-
 from src.nodes.keyboard.keyboard_node import KeyboardNode
 from src.nodes.keyboard.keyboard_hotkey import KeyboardHotKeyNode
 from src.nodes.keyboard.keyboard_presskey import KeyboardPressNode
@@ -22,17 +20,21 @@ from src.nodes.keyboard.keyboard_write import KeyboardWriteNode
 
 from src.nodes.youtube_node import YoutubeNode
 
+from src.nodes.chrome.chrome_node import ChromeNode
+from src.nodes.chrome.chrome_tab_node import ChromeTabNode
+from src.nodes.chrome.chrome_close_node import ChromeCloseNode
+
 # Edge Imports
 from src.edges.redirector_edge import RedirectorEdge
 from src.edges.calendar_edge import CalendarRedirectorEdge
 from src.edges.keyboard_edge import KeyboardRedirectorEdge
+from src.edges.chrome_edge import ChromeRedirectorEdge
 
 # Tools Imports
 from src.tools.search_tools import search_tools
-from src.tools.browser_tools import browser_tools
 from src.tools.system_tools import system_tools
 from src.tools.softwares_tool import software_tools
-
+from src.tools.chrome_tab_tools import chrome_tab_tools
 
 class GraphBuilder:
     def __init__(self):
@@ -46,8 +48,6 @@ class GraphBuilder:
         graph_builder.add_node("chatbot", ChatbotNode().execute)
         graph_builder.add_node("network_search", SearchNode().execute)
         graph_builder.add_node("network_search_tools", ToolNode(tools=search_tools))
-        graph_builder.add_node("browser_node", BrowserNode().execute)
-        graph_builder.add_node("browser_node_tools", ToolNode(tools=browser_tools))
         graph_builder.add_node("system_node", SystemNode().execute)
         graph_builder.add_node("system_node_tools", ToolNode(tools=system_tools))
         graph_builder.add_node("software_node", SoftwareNode().execute)
@@ -61,7 +61,11 @@ class GraphBuilder:
         graph_builder.add_node("keyboard_hotkey", KeyboardHotKeyNode().execute)
         graph_builder.add_node("keyboard_presskey", KeyboardPressNode().execute)
         graph_builder.add_node("keyboard_write", KeyboardWriteNode().execute)
-        graph_builder.add_node("youtube_node",YoutubeNode().execute)
+        graph_builder.add_node("youtube_node", YoutubeNode().execute)
+        graph_builder.add_node("chrome_node", ChromeNode().execute)
+        graph_builder.add_node("chrome_close_node", ChromeCloseNode().execute)
+        graph_builder.add_node("chrome_tab_node", ChromeTabNode().execute)
+        graph_builder.add_node("chrome_tab_node_tools", ToolNode(tools=chrome_tab_tools))
 
         graph_builder.add_conditional_edges(START, RedirectorEdge().execute)
 
@@ -75,16 +79,7 @@ class GraphBuilder:
             tools_condition,
             {"tools": "network_search_tools", "__end__": "chatbot"},
         )
-        graph_builder.add_conditional_edges(
-            "browser_node",
-            tools_condition,
-            {"tools": "browser_node_tools", "__end__": "chatbot"},
-        )
-        graph_builder.add_conditional_edges(
-            "browser_node_tools",
-            tools_condition,
-            {"tools": "browser_node_tools", "__end__": "chatbot"},
-        )
+        
         graph_builder.add_conditional_edges(
             "system_node",
             tools_condition,
@@ -105,12 +100,26 @@ class GraphBuilder:
             tools_condition,
             {"tools": "software_node_tools", "__end__": "chatbot"},
         )
+        
+        graph_builder.add_conditional_edges(
+            "chrome_tab_node",
+            tools_condition,
+            {"tools": "chrome_tab_node_tools", "__end__": "chatbot"},
+        )
+        graph_builder.add_conditional_edges(
+            "chrome_tab_node_tools",
+            tools_condition,
+            {"tools": "chrome_tab_node_tools", "__end__": "chatbot"},
+        )
 
         graph_builder.add_conditional_edges(
             "calendar_node", CalendarRedirectorEdge().execute
         )
         graph_builder.add_conditional_edges(
             "keyboard_node", KeyboardRedirectorEdge().execute
+        )
+        graph_builder.add_conditional_edges(
+            "chrome_node", ChromeRedirectorEdge().execute
         )
 
         graph_builder.add_edge("calendar_create", "calendar_final")
@@ -121,9 +130,8 @@ class GraphBuilder:
         graph_builder.add_edge("keyboard_hotkey", "chatbot")
         graph_builder.add_edge("keyboard_presskey", "chatbot")
         graph_builder.add_edge("keyboard_write", "chatbot")
-        
         graph_builder.add_edge("youtube_node", "chatbot")
+        graph_builder.add_edge("chrome_tab_node","chatbot")
+        graph_builder.add_edge("chrome_close_node","chatbot")
         graph_builder.add_edge("chatbot", END)
         return graph_builder.compile(checkpointer=self.memory)
-
-    

@@ -1,7 +1,7 @@
 import asyncio
 from langchain_core.messages import SystemMessage, HumanMessage
 from .base_edge import BaseEdge
-
+from src.config.settings import settings
 
 class RedirectorEdge(BaseEdge):
     def __init__(self):
@@ -9,39 +9,45 @@ class RedirectorEdge(BaseEdge):
 
     async def execute(self, state):
         """Edge that decides the next node with improved routing logic."""
-        if state.get("mode","normal")=="keyboard":
+        mode = settings.mode
+        print("current Mode", mode)
+        if mode == "keyboard":
             print("selected: keyboard_node")
             return "keyboard_node"
-        
+
+        if mode == "chrome":
+            print("selected: chrome_node")
+            return "chrome_node"
+
         system_msg = self.get_system_message()
         user_query = self._extract_latest_user_query(state["messages"])
         human_msg = self._format_human_message(state["messages"], user_query)
 
         messages = [SystemMessage(content=system_msg), HumanMessage(content=human_msg)]
-        
+
         try:
             response = await self.llm_service.ainvoke(messages, use_pro=True)
             result = response.content.strip().lower()
-            
+
             valid_nodes = {
                 "chatbot",
-                "network_search", 
+                "network_search",
                 "calendar_node",
-                "browser_node",
-                "system_node", 
+                "system_node",
                 "software_node",
                 "keyboard_node",
-                "youtube_node"
+                "youtube_node",
+                "chrome_node",
             }
-            
+
             print(f"Router decision: {result}")
-            
+
             if result in valid_nodes:
                 return result
             else:
                 print(f"Invalid router result '{result}', defaulting to chatbot")
                 return "chatbot"
-                
+
         except Exception as e:
             print(f"Router error: {e}, defaulting to chatbot")
             return "chatbot"
@@ -55,7 +61,7 @@ class RedirectorEdge(BaseEdge):
     AVAILABLE ROUTES:
     1. network_search - Internet searches, current information, news, weather, Wikipedia
     2. calendar_node - Calendar operations, events, meetings, scheduling
-    3. browser_node - Web browser control and navigation
+    3. chrome_node - chrome, Web browser control and navigation
     4. system_node - System controls (brightness, volume, performance monitoring)
     5. software_node - Application management (launch, check, security scans)
     6. keyboard_node - When user wants to enable or use keyboard mode
@@ -74,9 +80,9 @@ class RedirectorEdge(BaseEdge):
     TRIGGERS: calendar, schedule, meeting, event, appointment, book, plan, remind
     EXAMPLES: "check my calendar", "schedule meeting", "what events tomorrow"
     
-    → browser_node
-    TRIGGERS: browser, website, navigate, open site, web page, url, bookmark
-    EXAMPLES: "open google.com", "navigate to website", "close browser"
+    → chrome_node
+    TRIGGERS: browser, website, navigate, open site, web page, url, bookmark, chrome, enter chrome node
+    EXAMPLES: "open google.com", "navigate to website", "close browser","open google in chrome"
     
     → system_node
     TRIGGERS: brightness, volume, sound, airplane mode, wifi, bluetooth, CPU, RAM, GPU, performance, system info
@@ -101,7 +107,7 @@ class RedirectorEdge(BaseEdge):
     
     
     OUTPUT REQUIREMENT:
-    Return EXACTLY ONE word from: network_search, calendar_node, browser_node, system_node, software_node, keyboard_node, youtube_node, chatbot
+    Return EXACTLY ONE word from: network_search, calendar_node, chrome_node, system_node, software_node, keyboard_node, youtube_node, chatbot
     
     CRITICAL RULES:
     - Analyze the PRIMARY intent of the user's request
@@ -110,7 +116,6 @@ class RedirectorEdge(BaseEdge):
     - Only use "chatbot" for general knowledge questions that don't require system interaction
     
     Return only the single routing word, nothing else."""
-
 
     def _extract_latest_user_query(self, messages):
         from langchain_core.messages import HumanMessage

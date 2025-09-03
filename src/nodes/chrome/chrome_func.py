@@ -3,14 +3,13 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from src.nodes.base_node import BaseNode
 from src.core.state import AssistantState
 from pydantic import BaseModel, Field
-from src.config.settings import settings
 
 
 class DataOutput(BaseModel):
     next_mode: str = Field(description="next mode of the user")
 
 
-class KeyboardNode(BaseNode):
+class ChromeNode(BaseNode):
     def __init__(self):
         super().__init__()
 
@@ -22,36 +21,36 @@ class KeyboardNode(BaseNode):
         llm = self.llm_service.llm.with_structured_output(DataOutput)
         res_data = await llm.ainvoke(messages)
         mode = res_data.next_mode
-        if mode == "keyboard":
-            settings.mode = "keyboard"
+        if mode == "chrome":
             return {
-                "messages": [AIMessage(content="enter into Keyboard mode success.")],
+                "mode": res_data.next_mode,
+                "messages": [AIMessage(content="enter into chrome mode success.")],
             }
-        settings.mode = "normal"
         return {
-            "messages": [AIMessage(content="Keyboard mode has been exited.")],
+            "mode": res_data.next_mode,
+            "messages": [AIMessage(content="chrome mode has been exited.")],
         }
 
     def get_system_message(self) -> str:
         return """
         You are a mode classifier for an AI assistant. Your job is to determine
-        whether the assistant should remain in 'keyboard' mode or switch to 'normal' mode
+        whether the assistant should remain in 'chrome' mode or switch to 'normal' mode
         based on the user's latest message.    
 
         Available modes:
-        - "keyboard": The assistant is currently in keyboard mode. Stay in this mode if the user
-          is still typing, interacting, or has not explicitly asked to exit keyboard mode.
+        - "chrome": The assistant is currently in chrome mode. Stay in this mode if the user
+          is still searching, interacting, or has not explicitly asked to exit chrome mode.
         - "normal": Switch to this mode ONLY if the user clearly indicates they want to stop typing,
-          exit keyboard mode, or finish the current task.    
+          exit chrome mode, or finish the current task.    
 
         Instructions:
         1. Analyze the latest user message carefully.
-        2. If the user says anything like "exit", "done", "finish", "stop typing",
+        2. If the user says anything like "exit", "done", "finish", "stop searching",
            or similar, return "normal".
-        3. Otherwise, always return "keyboard".
+        3. Otherwise, always return "chrome".
         4. Be strict: Only switch to "normal" when the intention is clear.    
 
-        Respond ONLY with the next_mode field, containing either "keyboard" or "normal".
+        Respond ONLY with the next_mode field, containing either "chrome" or "normal".
         """
 
     def _extract_latest_user_query(self, messages):
