@@ -43,7 +43,6 @@ class ChromeTabToolFactory:
                 seleniumservice.chrome_driver().execute_script(
                     "window.open('https://www.google.com', '_blank');"
                 )
-                time.sleep(1)
                 tabs = seleniumservice.chrome_driver().window_handles
                 num_tabs = len(tabs)
     
@@ -53,11 +52,6 @@ class ChromeTabToolFactory:
                 return_msg += f"Closing Tab {tab_index} ({title}). "
                 seleniumservice.chrome_driver().close()
                 
-                remaining_tabs = seleniumservice.chrome_driver().window_handles
-                if remaining_tabs:
-                    seleniumservice.chrome_driver().switch_to.window(remaining_tabs[0])
-                    new_title = seleniumservice.chrome_driver().title
-                    return_msg += f"Switched to Tab 0 ({new_title})"
             else:
                 return_msg += f"Invalid tab index {tab_index}! Available tabs: 0-{num_tabs-1}"
                 

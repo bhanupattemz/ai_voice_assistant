@@ -32,11 +32,13 @@ dependencies = [
     { name = "pyowm" },
     { name = "pytz" },
     { name = "screen-brightness-control" },
+    { name = "send2trash" },
     { name = "setuptools" },
     { name = "speechrecognition" },
     { name = "tzdata" },
     { name = "web-browser" },
     { name = "wikipedia" },
+    { name = "winshell" },
     { name = "youtube-search" },
 ]
 
@@ -63,11 +65,13 @@ requires-dist = [
     { name = "pyowm", specifier = ">=3.3.0" },
     { name = "pytz", specifier = ">=2025.2" },
     { name = "screen-brightness-control", specifier = ">=0.24.2" },
+    { name = "send2trash", specifier = ">=1.8.3" },
     { name = "setuptools", specifier = ">=80.9.0" },
     { name = "speechrecognition", specifier = ">=3.14.3" },
     { name = "tzdata", specifier = ">=2025.2" },
     { name = "web-browser", specifier = ">=0.0.1" },
     { name = "wikipedia", specifier = ">=1.4.0" },
+    { name = "winshell", specifier = ">=0.6" },
     { name = "youtube-search", specifier = ">=2.1.2" },
 ]
 
@@ -4415,6 +4419,15 @@ wheels = [
 ]
 
 [[package]]
+name = "send2trash"
+version = "1.8.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fd/3a/aec9b02217bb79b87bbc1a21bc6abc51e3d5dcf65c30487ac96c0908c722/Send2Trash-1.8.3.tar.gz", hash = "sha256:b18e7a3966d99871aefeb00cfbcfdced55ce4871194810fc71f4aa484b953abf", size = 17394, upload-time = "2024-04-07T00:01:09.267Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/b0/4562db6223154aa4e22f939003cb92514c79f3d4dccca3444253fd17f902/Send2Trash-1.8.3-py3-none-any.whl", hash = "sha256:0c31227e0bd08961c7665474a3d1ef7193929fedda4233843689baa056be46c9", size = 18072, upload-time = "2024-04-07T00:01:07.438Z" },
+]
+
+[[package]]
 name = "setuptools"
 version = "80.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -4663,6 +4676,12 @@ dependencies = [
     { name = "requests" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/67/35/25e68fbc99e672127cc6fbb14b8ec1ba3dfef035bf1e4c90f78f24a80b7d/wikipedia-1.4.0.tar.gz", hash = "sha256:db0fad1829fdd441b1852306e9856398204dc0786d2996dd2e0c8bb8e26133b2", size = 27748, upload-time = "2014-11-15T15:59:49.808Z" }
+
+[[package]]
+name = "winshell"
+version = "0.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/3f/d23d248029a49042d278af9c86b53bc90845e3739a0d7493e00cbac0e4cd/winshell-0.6.zip", hash = "sha256:16812fcd6a43391d6c0b707b4d67e809e52286a739683a91623baa0804ea0d41", size = 10070, upload-time = "2012-03-25T19:34:03.282Z" }
 
 [[package]]
 name = "wmi"

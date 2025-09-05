@@ -10,7 +10,6 @@ class RedirectorEdge(BaseEdge):
     async def execute(self, state):
         """Edge that decides the next node with improved routing logic."""
         mode = settings.mode
-        print("current Mode", mode)
         if mode == "keyboard":
             print("selected: keyboard_node")
             return "keyboard_node"
@@ -18,6 +17,10 @@ class RedirectorEdge(BaseEdge):
         if mode == "chrome":
             print("selected: chrome_node")
             return "chrome_node"
+        
+        if mode == "filemanager":
+            print("selected: filemanager_node")
+            return "filemanager_node"
 
         system_msg = self.get_system_message()
         user_query = self._extract_latest_user_query(state["messages"])
@@ -38,6 +41,7 @@ class RedirectorEdge(BaseEdge):
                 "keyboard_node",
                 "youtube_node",
                 "chrome_node",
+                "filemanager_node"
             }
 
             print(f"Router decision: {result}")
@@ -66,6 +70,7 @@ class RedirectorEdge(BaseEdge):
     5. software_node - Application management (launch, check, security scans)
     6. keyboard_node - When user wants to enable or use keyboard mode
     7. youtube_node - For YouTube video searches, playing videos, or opening YouTube
+    8. filemanager_node - file, filemanager, file manager mode, open file, close file
     8. chatbot - General conversation, questions answerable without tools
     
     
@@ -82,7 +87,11 @@ class RedirectorEdge(BaseEdge):
     
     → chrome_node
     TRIGGERS: browser, website, navigate, open site, web page, url, bookmark, chrome, enter chrome node
-    EXAMPLES: "open google.com", "navigate to website", "close browser","open google in chrome"
+    EXAMPLES: "open google.com", "navigate to website","open google in chrome", "enter chrome mode", "enter browser mode","set chrome mode"
+    
+     → filemanager_node
+    TRIGGERS: files, file manager, change file, delete file, files path
+    EXAMPLES: "open files", "navigate to path", "enter filemanager mode", "set file manager mode"
     
     → system_node
     TRIGGERS: brightness, volume, sound, airplane mode, wifi, bluetooth, CPU, RAM, GPU, performance, system info
@@ -107,7 +116,7 @@ class RedirectorEdge(BaseEdge):
     
     
     OUTPUT REQUIREMENT:
-    Return EXACTLY ONE word from: network_search, calendar_node, chrome_node, system_node, software_node, keyboard_node, youtube_node, chatbot
+    Return EXACTLY ONE word from:filemanager_node, network_search, calendar_node, chrome_node, system_node, software_node, keyboard_node, youtube_node, chatbot
     
     CRITICAL RULES:
     - Analyze the PRIMARY intent of the user's request

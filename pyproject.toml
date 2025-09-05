@@ -26,10 +26,12 @@ dependencies = [
     "pyowm>=3.3.0",
     "pytz>=2025.2",
     "screen-brightness-control>=0.24.2",
+    "send2trash>=1.8.3",
     "setuptools>=80.9.0",
     "speechrecognition>=3.14.3",
     "tzdata>=2025.2",
     "web-browser>=0.0.1",
     "wikipedia>=1.4.0",
+    "winshell>=0.6",
     "youtube-search>=2.1.2",
 ]
