@@ -1,4 +1,3 @@
-import asyncio
 from langchain_core.messages import SystemMessage, HumanMessage
 from .base_edge import BaseEdge
 from src.config.settings import settings
@@ -24,7 +23,8 @@ class FileManagerRedirectorEdge(BaseEdge):
                 "chatbot",
                 "filemanager_close_node",
                 "filemanager_tab_node",
-                "filemanager_func_node",
+                "filemanager_read_node",
+                "filemanager_write_node",
             }
             print(result)
             if result in valid_nodes:
@@ -38,36 +38,82 @@ class FileManagerRedirectorEdge(BaseEdge):
 
     def get_system_message(self) -> str:
         return """
-You are a path selector (router) for the assistant. Your goal is to choose the correct path based on the user's request.
-
-Available paths:
-1. **chatbot** - only when current mode is normal or when File Manager mode is exited.
-2. **filemanager_close_node** - if user wants to close a File Manager window.
-3. **filemanager_tab_node** - if user wants modifications related to File Manager tab (opening, closing, switching windows, or opening a new folder in a window).
-4. **filemanager_func_node** - if user wants to perform actions inside a File Manager window, such as scrolling or interacting with folder contents, and it is not related to window management or closing File Manager.
-
-Examples:
-- User: "Close the window" → **filemanager_close_node**
-- User: "Open a new tab at Downloads folder" → **filemanager_tab_node**
-- User: "Switch to the Pictures tab" → **filemanager_tab_node**
-- User: "Scroll down to see more files" → **filemanager_func_node**
-- User: "Open the Music folder in current window" → **filemanager_func_node**
-
-Instructions:
-- Carefully read the latest user message.
-- If the user explicitly says the current mode is normal or mentions "File Manager Mode exited", return **chatbot**.
-- Close File Manager window → **filemanager_close_node**
-- tab modifications → **filemanager_tab_node**
-- Perform File Manager actions (scroll, open folder) → **filemanager_func_node**
-  -> filemanager_tab_node: open new tab, open folder, switch tab, close tab
-  -> filemanager_func_node: if user wants work not related to close_node or tab_node
-- Return only the node name in lowercase.
-- one window have mutiple tabs
-
-IMPORTANT:
-- don't go filemanager_close_node until user says close window
-- if user say tab go with filemanager_tab_node*
-"""
+    You are a path selector (router) for the assistant. Your goal is to choose the correct path based on the user's request.
+    
+    Available paths:
+    1. **chatbot** - only when current mode is normal or when File Manager mode is exited.
+    2. **filemanager_close_node** - if user wants to close a File Manager window.
+    3. **filemanager_tab_node** - if user wants modifications related to File Manager tab (opening, closing, switching windows, or opening a new folder in a new tab).
+    4. **filemanager_read_node** - if user wants to VIEW, BROWSE, or READ content without modifying files.
+    5. **filemanager_write_node** - if user wants to CREATE, DELETE, COPY, MOVE, or MODIFY files/folders.
+    
+    READ OPERATIONS (filemanager_read_node):
+    - Open/browse folders in current tab
+    - Open files for viewing
+    - Scroll through file listings
+    - Read file contents
+    - View folder contents
+    - Navigate within current window
+    
+    Examples for READ:
+    - "Open the Documents folder"
+    - "Scroll down to see more files" 
+    - "What's in this folder?"
+    - "Show me the contents of notes.txt"
+    - "Go to parent folder"
+    - "Navigate to Downloads"
+    
+    WRITE OPERATIONS (filemanager_write_node):
+    - Create files or folders
+    - Delete files or folders
+    - Copy files or folders
+    - Cut/move files or folders
+    - Paste operations
+    - Any modification to file system
+    
+    Examples for WRITE:
+    - "Create a new folder called Projects"
+    - "Delete this old file"
+    - "Copy main.py to Desktop"
+    - "Move these files to Downloads"
+    - "Create a file named todo.txt"
+    - "Cut this folder and paste it elsewhere"
+    
+    TAB OPERATIONS (filemanager_tab_node):
+    - Open new tabs
+    - Close tabs
+    - Switch between tabs
+    - Open folder in NEW tab/window
+    
+    Examples for TAB:
+    - "Open Downloads in a new tab"
+    - "Close this tab"
+    - "Switch to the Pictures tab"
+    - "Open new window"
+    
+    WINDOW OPERATIONS (filemanager_close_node):
+    - Close entire File Manager window
+    - Exit File Manager completely
+    
+    Examples for CLOSE:
+    - "Close the window"
+    - "Exit File Manager"
+    - "Close File Manager"
+    
+    ROUTING DECISION LOGIC:
+    1. If mentions "tab", "new tab", "switch tab" → **filemanager_tab_node**
+    2. If mentions "close window", "exit" → **filemanager_close_node**  
+    3. If mentions create, delete, copy, cut, paste, move → **filemanager_write_node**
+    4. If mentions open folder, scroll, read, view, browse, navigate → **filemanager_read_node**
+    5. If current mode is normal or File Manager exited → **chatbot**
+    
+    IMPORTANT NOTES:
+    - "Open folder" in current window = **filemanager_read_node**
+    - "Open folder in new tab" = **filemanager_tab_node**
+    - Don't go to filemanager_close_node unless user explicitly wants to close window
+    - One window can have multiple tabs
+    - Return only the node name in lowercase
+    """
 
     def _extract_latest_user_query(self, messages):
         from langchain_core.messages import HumanMessage
@@ -79,10 +125,10 @@ IMPORTANT:
 
     def _format_human_message(self, messages, user_query, state):
         return f"""
-Conversation so far:
-{self.formatter_without_tools(messages)}
-Latest user message:
-{user_query}
-Current Mode: {settings.mode}
-Please select the correct path: "chatbot", "filemanager_close_node", "filemanager_tab_node", "filemanager_func_node".
-"""
+    Conversation so far:
+    {self.formatter_without_tools(messages)}
+    Latest user message:
+    {user_query}
+    Current Mode: {settings.mode}
+    Please select the correct path: "chatbot","filemanager_close_node","filemanager_tab_node","filemanager_read_node","filemanager_write_node".
+    """

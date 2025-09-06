@@ -29,7 +29,9 @@ from src.nodes.chrome.chrome_func_node import ChromeFuncNode
 from src.nodes.filemanage.files_node import FileManagerNode
 from src.nodes.filemanage.files_tab_node import FileManagerTabNode
 from src.nodes.filemanage.files_close_node import FileManagerCloseNode
-from src.nodes.filemanage.files_func_node import FileManagerFuncNode
+from src.nodes.filemanage.files_write_node import FileManagerWriteNode
+from src.nodes.filemanage.files_read_node import FileManagerReadNode
+
 
 # Edge Imports
 from src.edges.redirector_edge import RedirectorEdge
@@ -45,8 +47,8 @@ from src.tools.softwares_tool import software_tools
 from src.tools.chrome_tab_tools import chrome_tab_tools
 from src.tools.chrome_func_tools import chrome_func_tools
 from src.tools.files_tab_tools import file_manager_tab_tools
-from src.tools.files_func_tools import filemanager_func_tools
-
+from src.tools.files_write_tools import filemanager_write_tools
+from src.tools.files_read_tools import filemanager_read_tools
 class GraphBuilder:
     def __init__(self):
         self.memory = InMemorySaver()
@@ -84,8 +86,10 @@ class GraphBuilder:
         graph_builder.add_node("filemanager_close_node", FileManagerCloseNode().execute)
         graph_builder.add_node("filemanager_tab_node", FileManagerTabNode().execute)
         graph_builder.add_node("filemanager_tab_node_tools", ToolNode(tools=file_manager_tab_tools))
-        graph_builder.add_node("filemanager_func_node", FileManagerFuncNode().execute)
-        graph_builder.add_node("filemanager_func_node_tools", ToolNode(tools=filemanager_func_tools))
+        graph_builder.add_node("filemanager_write_node", FileManagerWriteNode().execute)
+        graph_builder.add_node("filemanager_write_node_tools", ToolNode(tools=filemanager_write_tools))
+        graph_builder.add_node("filemanager_read_node", FileManagerReadNode().execute)
+        graph_builder.add_node("filemanager_read_node_tools", ToolNode(tools=filemanager_read_tools))
         
 
         graph_builder.add_conditional_edges(START, RedirectorEdge().execute)
@@ -157,14 +161,25 @@ class GraphBuilder:
         )
         
         graph_builder.add_conditional_edges(
-            "filemanager_func_node",
+            "filemanager_write_node",
             tools_condition,
-            {"tools": "filemanager_func_node_tools", "__end__": "chatbot"},
+            {"tools": "filemanager_write_node_tools", "__end__": "chatbot"},
         )
         graph_builder.add_conditional_edges(
-            "filemanager_func_node_tools",
+            "filemanager_write_node_tools",
             tools_condition,
-            {"tools": "filemanager_func_node_tools", "__end__": "chatbot"},
+            {"tools": "filemanager_write_node_tools", "__end__": "chatbot"},
+        )
+        
+        graph_builder.add_conditional_edges(
+            "filemanager_read_node",
+            tools_condition,
+            {"tools": "filemanager_read_node_tools", "__end__": "chatbot"},
+        )
+        graph_builder.add_conditional_edges(
+            "filemanager_read_node_tools",
+            tools_condition,
+            {"tools": "filemanager_read_node_tools", "__end__": "chatbot"},
         )
 
         graph_builder.add_conditional_edges(
@@ -194,6 +209,7 @@ class GraphBuilder:
         graph_builder.add_edge("chrome_func_node","chatbot")
         graph_builder.add_edge("filemanager_tab_node","chatbot")
         graph_builder.add_edge("filemanager_close_node","chatbot")
-        graph_builder.add_edge("filemanager_func_node","chatbot")
+        graph_builder.add_edge("filemanager_write_node","chatbot")
+        graph_builder.add_edge("filemanager_read_node","chatbot")
         graph_builder.add_edge("chatbot", END)
         return graph_builder.compile(checkpointer=self.memory)
