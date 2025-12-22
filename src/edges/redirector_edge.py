@@ -11,15 +11,12 @@ class RedirectorEdge(BaseEdge):
         """Edge that decides the next node with improved routing logic."""
         mode = settings.mode
         if mode == "keyboard":
-            print("selected: keyboard_node")
             return "keyboard_node"
 
         if mode == "chrome":
-            print("selected: chrome_node")
             return "chrome_node"
         
         if mode == "filemanager":
-            print("selected: filemanager_node")
             return "filemanager_node"
 
         system_msg = self.get_system_message()

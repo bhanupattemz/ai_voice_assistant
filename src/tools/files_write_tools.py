@@ -5,6 +5,7 @@ import shutil
 from typing import List
 from langchain.agents import Tool
 from src.services.filemanger_service import FileManagerService
+from langchain.tools import StructuredTool
 
 
 class FileManagerWriteToolFactory:
@@ -91,29 +92,28 @@ class FileManagerWriteToolFactory:
         except Exception as e:
             return f"Error moving '{path}' to Recycle Bin: {e}"
 
-    def create_item(self, data: dict) -> str:
-        print("+++++++++", data, "++++++++++++++++", type(data))
-        path = data.get("path", None)
-        name = data.get("name", None)
-        item_type = data.get("item_type", None)
+    def create_file(self, data: str) -> str:
+        path,name=data.split(",")
         full_path = os.path.join(path, name)
-        if not (path and name and item_type):
-            return "path or name or item_type is missing"
+        if not (path and name):
+            return "path or name is missing"
 
         try:
-            if item_type.lower() == "folder":
-                os.makedirs(full_path, exist_ok=True)
-                return f"Folder created: {full_path}"
+            os.makedirs(os.path.dirname(full_path), exist_ok=True)
+            with open(full_path, "w", encoding="utf-8") as f:
+                f.write("")
+            return f"File created: {full_path}"
+        except Exception as e:
+            return f"Error creating item: {e}"
 
-            elif item_type.lower() == "file":
-                os.makedirs(os.path.dirname(full_path), exist_ok=True)
-                with open(full_path, "w", encoding="utf-8") as f:
-                    f.write("")
-                return f"File created: {full_path}"
-
-            else:
-                return "Invalid item_type. Use 'file' or 'folder'."
-
+    def create_folder(self, data: str) -> str:
+        path,name=data.split(",")
+        full_path = os.path.join(path, name)
+        if not (path and name):
+            return "path or name is missing"
+        try:
+            os.makedirs(full_path, exist_ok=True)
+            return f"Folder created: {full_path}"
         except Exception as e:
             return f"Error creating item: {e}"
 
@@ -123,66 +123,32 @@ class FileManagerWriteToolFactory:
             Tool(
                 name="copy_to_clipboard",
                 func=self.copy_to_clipboard,
-                description="""
-                Copies a file or folder path to clipboard.
-                
-                Input: 
-                "path" (str): Full path to the file or folder.
-                
-                Output: Confirmation message.
-                """,
+                description="""UseFul when user want to Copy a file or folder to clipboard for later pasting.""",
             ),
             Tool(
                 name="cut_to_clipboard",
                 func=self.cut_to_clipboard,
-                description="""
-                Cuts (moves) a file or folder path to clipboard.
-                
-                Input: 
-                "path" (str): Full path to the file or folder.
-                
-                Output: Confirmation message.
-                """,
+                description="""UseFul when user want to Cut (move) a file or folder to clipboard for later pasting.""",
             ),
             Tool(
                 name="paste_from_clipboard",
                 func=self.paste_from_clipboard,
-                description="""
-                Pastes the previously copied or cut item into a destination folder.
-                
-                Input: 
-                "dest_folder" (str): Full path of the destination folder.
-                
-                Output: Success or error message.
-                """,
+                description="""UseFul when user want to Paste previously copied or cut items from clipboard to destination folder.""",
             ),
             Tool(
                 name="delete_content",
                 func=self.delete_content,
-                description="""
-                Moves a file or folder to the Recycle Bin.
-                
-                Input: 
-                "path" (str): Full path to the file or folder.
-                
-                Output: Success or error message.
-                """,
+                description="""UseFul when user want to Delete a file or folder by moving it to Recycle Bin.""",
             ),
             Tool(
-                name="create_item",
-                func=self.create_item,
-                description="""
-                Create a file or folder at the specified path.    
-        
-                Args(dict):
-                {
-                    "path" : str        # Base directory where the file/folder should be created.
-                    "name" : str        # Name of the file or folder (e.g., 'abc.txt' or 'NewFolder').
-                    "item_type" : str   # 'file' or 'folder'.    
-                }
-                Returns:
-                    str: Message with the status of the operation.
-                """,
+                name="create_file",
+                func=self.create_file,
+                description="""UseFul when user want to Create a file at the specified path."""
+            ),
+            Tool(
+                name="create_folder",
+                description="Usefull when user want to Create a folder at the specified path",
+                func=self.create_folder,
             ),
         ]
 

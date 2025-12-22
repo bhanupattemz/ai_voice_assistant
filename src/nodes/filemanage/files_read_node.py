@@ -30,8 +30,7 @@ class FileManagerReadNode(BaseNode):
         current_element = driver.find_element(By.XPATH, "/html/body/h1")
         current_path = None
         if current_element:
-            current_path = re.search(r"[A-Z]:\\(?:[^\\\n]+\\)*", current_element)
-
+            current_path = current_element.text[9:]
         return f"""
         You are a File Manager Automation Assistant. Execute ALL file operations using the provided tools.
         Never describe actions as done without calling the correct tool.

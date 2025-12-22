@@ -9,7 +9,7 @@ from src.tools.files_tab_tools import file_manager_tab_tools
 from src.services.selenium_service import seleniumservice
 from src.services.filemanger_service import FileManagerService
 from selenium.webdriver.common.by import By
-
+import re
 logger = logging.getLogger(__name__)
 
 
@@ -55,7 +55,7 @@ class FileManagerTabNode(BaseNode):
         current_element = driver.find_element(By.XPATH, "/html/body/h1")
         current_path = None
         if current_element:
-            current_path = current_element.text.split(" ")[2]
+              current_path = current_element.text[9:]
         return f"""You are a File Manager assistant. Your task is to identify the correct File Manager tab based on user descriptions and perform the requested actions.
         {fm_state}
         ---
