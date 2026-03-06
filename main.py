@@ -1,50 +1,50 @@
-# import asyncio
-# from src.core.assistant import VoiceAssistant
-# from src.config.settings import settings
-# import logging
-# from gtts import gTTS
-# from io import BytesIO
-# import pygame
-# import keyboard
-# import sounddevice as sd
-# import numpy as np
-# from scipy.io.wavfile import write
-# from pynput import keyboard
-# import speech_recognition as sr
+import asyncio
+from src.core.assistant import VoiceAssistant
+from src.config.settings import settings
+import logging
+from gtts import gTTS
+from io import BytesIO
+import pygame
+import keyboard
+import sounddevice as sd
+import numpy as np
+from scipy.io.wavfile import write
+from pynput import keyboard
+import speech_recognition as sr
 
-# logging.basicConfig(
-#     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-# )
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 
-# async def main():
-#     """Main entry point for the voice assistant."""
-#     assistant = VoiceAssistant()
-#     await assistant.initialize()
-#     print(f"Welcome to {settings.assistant_name}!")
-#     print("Type 'exit' or 'quit' to end the conversation.")
+async def main():
+    """Main entry point for the voice assistant."""
+    assistant = VoiceAssistant()
+    await assistant.initialize()
+    print(f"Welcome to {settings.assistant_name}!")
+    print("Type 'exit' or 'quit' to end the conversation.")
 
-#     while True:
-#         try:
-#             user_input = await asyncio.to_thread(input, "\nYou: ")
-#             user_input = user_input.strip()
+    while True:
+        try:
+            user_input = await asyncio.to_thread(input, "\nYou: ")
+            user_input = user_input.strip()
 
-#             if user_input.lower() in ["exit", "quit", "bye"]:
-#                 print("Goodbye!")
-#                 break
+            if user_input.lower() in ["exit", "quit", "bye"]:
+                print("Goodbye!")
+                break
 
-#             if not user_input:
-#                 continue
+            if not user_input:
+                continue
 
-#             response = await assistant.chat(user_input)
-#             print(f"\n{settings.assistant_name}: {response}")
+            response = await assistant.chat(user_input)
+            print(f"\n{settings.assistant_name}: {response}")
 
-#         except KeyboardInterrupt:
-#             print("\nGoodbye!")
-#             break
-#         except Exception as e:
-#             logging.error(f"Error processing request: {e}")
-#             print("Sorry, I encountered an error. Please try again.")
+        except KeyboardInterrupt:
+            print("\nGoodbye!")
+            break
+        except Exception as e:
+            logging.error(f"Error processing request: {e}")
+            print("Sorry, I encountered an error. Please try again.")
 
 
 
@@ -167,109 +167,110 @@
 
 
 
-import asyncio
-import logging
-from gtts import gTTS
-from io import BytesIO
-import pygame
-import sounddevice as sd
-import numpy as np
-from scipy.io.wavfile import write
-from pynput import keyboard as pynput_keyboard
-import speech_recognition as sr
+# import asyncio
+# import logging
+# from gtts import gTTS
+# from io import BytesIO
+# import pygame
+# import sounddevice as sd
+# import numpy as np
+# from scipy.io.wavfile import write
+# from pynput import keyboard as pynput_keyboard
+# import speech_recognition as sr
 
-from src.core.assistant import VoiceAssistant
-from src.config.settings import settings
+# from src.core.assistant import VoiceAssistant
+# from src.config.settings import settings
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# )
 
-pygame.mixer.init()
+# pygame.mixer.init()
 
-async def speak(text):
-    try:
-        tts = gTTS(text=text, lang="en", slow=False)
-        fp = BytesIO()
-        tts.write_to_fp(fp)
-        fp.seek(0)
-        pygame.mixer.music.load(fp)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy():
-            await asyncio.sleep(0.1)
-    except Exception as e:
-        logging.error(f"TTS playback failed: {e}")
+# async def speak(text):
+#     try:
+#         tts = gTTS(text=text, lang="en", slow=False)
+#         fp = BytesIO()
+#         tts.write_to_fp(fp)
+#         fp.seek(0)
+#         pygame.mixer.music.load(fp)
+#         pygame.mixer.music.play()
+#         while pygame.mixer.music.get_busy():
+#             await asyncio.sleep(0.1)
+#     except Exception as e:
+#         logging.error(f"TTS playback failed: {e}")
 
-async def main():
-    fs = 44100
-    recording = []
-    stream = None
-    recording_on = False
+# async def main():
+#     fs = 44100
+#     recording = []
+#     stream = None
+#     recording_on = False
 
-    assistant = VoiceAssistant()
-    await assistant.initialize()
+#     assistant = VoiceAssistant()
+#     await assistant.initialize()
 
-    loop = asyncio.get_running_loop()
+#     loop = asyncio.get_running_loop()
 
-    def callback(indata, frames, time, status):
-        recording.append(indata.copy())
+#     def callback(indata, frames, time, status):
+#         recording.append(indata.copy())
 
-    def on_press(key):
-        nonlocal stream, recording_on, recording
-        if key in (pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.ctrl_r) and not recording_on:
-            recording = []
-            stream = sd.InputStream(
-                samplerate=fs,
-                channels=1,
-                dtype="float32",
-                callback=callback
-            )
-            stream.start()
-            recording_on = True
+#     def on_press(key):
+#         nonlocal stream, recording_on, recording
+#         if key in (pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.ctrl_r) and not recording_on:
+#             recording = []
+#             stream = sd.InputStream(
+#                 samplerate=fs,
+#                 channels=1,
+#                 dtype="float32",
+#                 callback=callback
+#             )
+#             stream.start()
+#             recording_on = True
             
 
-    def on_release(key):
-        nonlocal stream, recording_on
-        if key in (pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.ctrl_r) and recording_on:
-            stream.stop()
-            stream.close()
-            recording_on = False
+#     def on_release(key):
+#         nonlocal stream, recording_on
+#         if key in (pynput_keyboard.Key.ctrl_l, pynput_keyboard.Key.ctrl_r) and recording_on:
+#             stream.stop()
+#             stream.close()
+#             recording_on = False
            
-            audio = np.concatenate(recording, axis=0)
-            audio = np.int16(audio * 32767)
-            write("output.wav", fs, audio)
+#             audio = np.concatenate(recording, axis=0)
+#             audio = np.int16(audio * 32767)
+#             write("output.wav", fs, audio)
 
-            loop.call_soon_threadsafe(
-                lambda: asyncio.create_task(process_audio())
-            )
+#             loop.call_soon_threadsafe(
+#                 lambda: asyncio.create_task(process_audio())
+#             )
 
-    async def process_audio():
-        r = sr.Recognizer()
-        try:
-            with sr.AudioFile("output.wav") as source:
-                r.adjust_for_ambient_noise(source, duration=0.2)
-                audio_data = r.record(source)
+#     async def process_audio():
+#         r = sr.Recognizer()
+#         try:
+#             with sr.AudioFile("output.wav") as source:
+#                 r.adjust_for_ambient_noise(source, duration=0.2)
+#                 audio_data = r.record(source)
 
-            command = r.recognize_google(audio_data)
-            print("You:", command)
+#             command = r.recognize_google(audio_data)
+#             print("You:", command)
 
-            response = await assistant.chat(command)
-            print(f"{settings.assistant_name}: {response}")
+#             response = await assistant.chat(command)
+#             print(f"{settings.assistant_name}: {response}")
 
-            await speak(response)
+#             await speak(response)
 
-        except sr.UnknownValueError:
-            print("Could not understand audio")
+#         except sr.UnknownValueError:
+#             print("Could not understand audio")
 
-        except sr.RequestError as e:
-            print("Speech service error:", e)
+#         except sr.RequestError as e:
+#             print("Speech service error:", e)
 
-    listener = pynput_keyboard.Listener(on_press=on_press, on_release=on_release)
-    listener.start()
+#     listener = pynput_keyboard.Listener(on_press=on_press, on_release=on_release)
+#     listener.start()
 
-    while True:
-        await asyncio.sleep(0.1)
+#     while True:
+#         await asyncio.sleep(0.1)
+
 
 if __name__ == "__main__":
     try:
